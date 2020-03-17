@@ -1,6 +1,7 @@
 #!/bin/bash
-# add public key to authorized_keys
-# expects $1 to be a valid public key
+
+# Add public key to user centos authorized_keys
+# Expects $1 to be a valid public key
 
 if [! -z "$1" ]; then
 	mkdir /home/centos/.ssh

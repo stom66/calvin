@@ -1,4 +1,5 @@
 #!/bin/bash
-#install and add less and sass preprocessors
+
+# Install LESS and SASS preprocessors
 
 npm install -g less sass

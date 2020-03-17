@@ -1,5 +1,6 @@
 #!/bin/bash
-# runs yum update and installs various dependencies
+
+# Runs YUM update and installs various dependencies
 
 PACKAGES=""
 PACKAGES="{$PACKAGES} screen wget nano epel-release gcc gcc-c++ gem git"

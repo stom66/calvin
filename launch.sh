@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Setup vars
+declare -l DOMAIN
+declare PUBKEY
+declare VMIN_USER
+declare VMIN_PASSWORD
+
 # Parse provided parameters
 while [ $# -gt 0 ]; do
 	key="$1"
@@ -45,32 +51,33 @@ while [ $# -gt 0 ]; do
 done
 
 
-printf "|| Starting CALVIn. Checking config \n"
+printf "\n|| Starting CALVIn. Checking config \n"
 printf "|| ================================ \n"
 
 # Check we have a domain to use for configuration, prompt if not
 if [ -z "$DOMAIN" ]; then
-	printf "Enter a valid FQDN (example.com):"
-	read -e -p "Enter Your Name:" -i "Ricardo" NAME
-	read -r DOMAIN
+	read -e -p "|| Enter a valid FQDN: " -i "example.com" DOMAIN
 fi
 
 # Quit out if the user failed to provide a FQDN
 if [ -z "$DOMAIN" ]; then
-	printf "You must specify a FQDN. Script is exiting.\n\n"
+	printf "|| You must specify a FQDN. Script is exiting.\n\n"
 	exit 0
 fi
 
 # Check if we're using a pubkey, or request one
 if [ -z "$PUBKEY" ]; then
-	printf "Enter an optional public key to install (skip):"
-	read -r PUBKEY
+	read -e -p "|| Enter an optional public key to install: " -i "" PUBKEY
 fi
 
+# Check we have a user to set the password for
+if [ -z "$VMIN_USER" ]; then
+	read -e -p "|| Enter a valid user to grant access to the Virtualmin admin panel: " -i "root" VMIN_USER
+fi
 # Check we have a password to use for the Virtualmin admin
-if [ -z "$PASSWORD" ]; then
-	PASSWORD = date +%s | sha256sum | base64 | head -c 32
-	read -e -p "a password for the Virtualmin admin panel: " -i "${PASSWORD}" PASSWORD
+if [ -z "$VMIN_PASSWORD" ]; then
+	VMIN_PASSWORD=$(date +%s|sha256sum|base64|head -c 32)
+	read -e -p "|| Enter a password for the Virtualmin admin panel: " -i "${VMIN_PASSWORD}" VMIN_PASSWORD
 fi
 
 
@@ -78,9 +85,11 @@ fi
 print_vars() {
 	printf "|| FQDN:          ${DOMAIN} \n"
 	printf "|| Public key:    ${PUBKEY} \n"
+	printf "|| Password:      ${VMIN_PASSWORD} \n"
 	printf "|| \n"
 }
-printf "$(print_vars)"
+# printf "$(print_vars)"
+printf "|| All set. Proceeding with install... \n"
 
 
 # Start install log
@@ -121,4 +130,4 @@ echo "Installed NodeJS 12.x:" >> ./calvin.log
 node -v >> calvin.log
 
 # Add virtualmin
-sudo sh 66-virtualmin-installer.sh "${DOMAIN}"
+sudo sh 66-virtualmin-installer.sh "${DOMAIN}" "${VMIN_USER}" "${VMIN_PASSWORD}"
