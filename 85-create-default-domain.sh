@@ -6,9 +6,16 @@
 
 # Logging
 declare PREFIX="Calvin | create-default-domain |"
+declare DOMAIN="$1"
 
 virtualmin create-domain --domain "$1" --pass "$2" --default-features
 
+declare HOME_DIR=$(sudo virtualmin list-domains | grep "${DOMAIN}" | awk -F" " '{print $2}')
+
+if [ ! -z "$HOME_DIR" ]; then
+	cp ./resources/index.html "/home/${HOME_DIR}/public_html/index.html"
+	echo "${PREFIX} Created /home/${HOME_DIR}/public_html/index.html" >> ./calvin.log
+end
 
 # Done
 echo "${PREFIX} completed" >> ./calvin.log

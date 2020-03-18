@@ -2,13 +2,14 @@
 
 # Install NodeJS v12.x LTS on CentOS 7
 
+# Logging
+declare PREFIX="Calvin | node-js |"
+
 yum install -y gcc-c++ make
+echo "{PREFIX} Installed dependencies" >> ./calvin.log
+
 curl -sL https://rpm.nodesource.com/setup_12.x | bash -
 yum clean all
 yum makecache fast
 yum install -y nodejs
-
-
-# Logging
-declare PREFIX="Calvin | node-js |"
-echo "${PREFIX} NodeJS 12.x installed" >> ./calvin.log
+echo "{PREFIX} Installed NodeJS: $(node -v)" >> ./calvin.log
