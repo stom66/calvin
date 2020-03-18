@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This script is designed to be copy-pasted over SSH and give you a simple way to 
 # clone the various scripts and trigger the installer
 
