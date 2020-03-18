@@ -13,25 +13,16 @@ while [ $# -gt 0 ]; do
 		-h|--help)
 			echo "CentOS Amazon LightSail Virtualmin Installer (CALVIn)"
 			echo " "
-			echo "This script will configure a CentOS 7 Amazon Lightsail instance to provide"
-			echo "a typical webhosting framework. It will install the following major features and "
-			echo "their required dependencies"
-			echo "	* Virtualmin - apache, mysql, postfix, dovecot, etc"
-			echo "	* NodeJS 12.x "
-			echo "	* PHP 7.2 (via Virtualmin) and 7.4 (via Remi) "
-			echo "	* Install a supplied public key "
-			echo "	* Add a custom MotD with system overview "
-			echo "	* Tweak various config options "
-
-			echo "options:"
-			echo "-h, --help                      show brief help"
-			echo "-d, --domain [domain.tld]       specify an FQDN to use as the system hostname"
-			echo "-k, --pubkey [valid pubkey]     specify an public key to be added to the authorized_keys file"
-			echo "-p, --password [mypassword]     specify a password to use for the Virtualmin admin panel"
-			echo "-u, --user [centos]             specify a user to enable the Vitualmin admin panel password for"
-
-			echo "More information is available at https://github.com/stom66/calvin"
-
+			echo "More information is available at https://github.com/stom67/calvin"
+			echo " "
+			echo "Options:"
+			echo "  -h, --help                              show brief help"
+			echo "  -d, --domain [domain.tld]               specify an FQDN to use as the system hostname"
+			echo "  -k, --pubkey [valid pubkey]             specify an public key to be added to the authorized_keys file"
+			echo "  -u, --virtualmin-user [root]            specify a user to enable the Vitualmin admin panel password for"
+			echo "  -p, --virtualmin-password [mypassword]  specify a password to use for the Virtualmin admin panel"
+			echo "  -m, --mysql-password [mypassword]       specify a password to use for the MySQL root user"
+			echo "  -w, --webmin-password [mypassword]      specify a password to use for the default domain user"
 			exit 0
 			;;
 		-d|--domain)
@@ -44,7 +35,12 @@ while [ $# -gt 0 ]; do
 			shift
 			shift
 			;;
-		-p|--password)
+		-u|--virtualmin-user)
+			VMIN_USER="$2"
+			shift
+			shift
+			;;
+		-p|--virtualmin-password)
 			VMIN_PASSWORD="$2"
 			shift
 			shift
@@ -54,8 +50,8 @@ while [ $# -gt 0 ]; do
 			shift
 			shift
 			;;
-		-u|--user)
-			VMIN_USER="$2"
+		-w|--webmin-password)
+			WEBMIN_PASSWORD="$2"
 			shift
 			shift
 			;;
@@ -96,23 +92,16 @@ if [ -z "$VMIN_PASSWORD" ]; then
 	read -e -p "|| Enter a password for the Virtualmin admin panel: " -i "${VMIN_PASSWORD}" VMIN_PASSWORD
 fi
 
-# Check we have a password to use set for the MySQL root user
+# Check we have a password to set for the MySQL root user
 if [ -z "$MYSQL_PASSWORD" ]; then
 	MYSQL_PASSWORD=$(date +%s|sha256sum|sha256sum|base64|head -c 32)
 	read -e -p "|| Enter a password for the MySQL root user: " -i "${MYSQL_PASSWORD}" MYSQL_PASSWORD
 fi
 
-
-# Print the vars we're using
-# printf "|| All set. Proceeding with install... \n"
-# printf "|| FQDN:                  ${DOMAIN} \n"
-# printf "|| Public key:            ${PUBKEY} \n"
-# printf "|| Virtualmin user:       ${VMIN_USER} \n"
-# printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
-# printf "|| MySQL root password:   ${MYSQL_PASSWORD} \n"
-
-if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
-	printf "|| Virtualmin login details provided, configuring user account\n"
+# Check we have a password to use for the default domain webmin admin
+if [ -z "$WEBMIN_PASSWORD" ]; then
+	WEBMIN_PASSWORD=$(date +%s|sha256sum|sha256sum|base64|head -c 32)
+	read -e -p "|| Enter a password for the default domain Webmin user: " -i "${WEBMIN_PASSWORD}" WEBMIN_PASSWORD
 fi
 
 # Start install log
@@ -124,23 +113,19 @@ echo "   Using pubkey:    $PUBKEY" >> ./calvin.log
 
 # Add pubkey
 if [ -z "$PUBKEY" ]; then
-	echo "Skipping pubkey (none provided)" >> ./calvin.log
+	echo "Calvin | add-public-key | Skipping pubkey (none provided)" >> ./calvin.log
 else
 	sudo sh 05-add-public-key.sh -k "${PUBKEY}"
-	echo "Added pubkey to authorized_keys: ${PUBKEY}" >> ./calvin.log
 fi
 
 # Configure hostname and network
 sudo sh 10-hostname-setup.sh "${DOMAIN}"
-echo "Configured system to use hostname: ${DOMAIN}" >> ./calvin.log
 
 # Trigger yum updates and dependecy installs
 sudo sh 20-yum-update-and-install-dependencies.sh
-echo "Yum installed and updated" >> ./calvin.log
 
 # Add SysInfo MOTD
 sudo sh 40-add-motd-system-info.sh
-echo "Added sysinfo motd" >> ./calvin.log
 
 # Add Remi PHP 7.4
 sudo sh 50-php-add-remi.sh
@@ -152,15 +137,29 @@ sudo sh 55-node-js-12.sh
 echo "Installed NodeJS 12.x:" >> ./calvin.log
 node -v >> calvin.log
 
+# Add NPM Packages
+sudo sh 60-npm-install-less-sass.sh
+
+
 # Add virtualmin
 if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
-	sudo sh 66-virtualmin-installer.sh "${DOMAIN}" "${VMIN_USER}" "${VMIN_PASSWORD}"
+	sudo sh 65-virtualmin-installer.sh "${DOMAIN}" "${VMIN_USER}" "${VMIN_PASSWORD}"
 else
-	sudo sh 66-virtualmin-installer.sh "${DOMAIN}"
+	sudo sh 65-virtualmin-installer.sh "${DOMAIN}"
 fi
 
 # Run the Virtualmin Post-Install Wizard
-sudo sh 68-virtualmin-post-install-wizard.sh "${MYSQL_PASSWORD}"
+sudo sh 70-virtualmin-post-install-wizard.sh "${MYSQL_PASSWORD}"
+
+# Run the Virtualmin Post-Install Wizard
+sudo sh 75-virtualmin-features.sh
+
+# Create a virtual site for the default domain
+sudo sh 85-create-default-domain.sh "${DOMAIN}" "${WEBMIN_PASSWORD}"
+
+# Upgrade MariaDB to 10.4
+sudo sh 80-php-ini-tweaks.sh
+
 
 # Upgrade MariaDB to 10.4
 sudo sh 90-maria-upgrade.sh "${MYSQL_PASSWORD}"
@@ -169,10 +168,11 @@ sudo sh 90-maria-upgrade.sh "${MYSQL_PASSWORD}"
 printf "\n"
 printf "|| CALVIn has completed \n"
 printf "|| ========================================================\n"
-printf "|| FQDN:                  ${DOMAIN} \n"
-printf "|| Public key:            ${PUBKEY} \n"
-printf "|| Virtualmin user:       ${VMIN_USER} \n"
-printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
-printf "|| Virtualmin panel:      https://${DOMAIN}:10000 \n"
-printf "|| MySQL root password:   ${MYSQL_PASSWORD} \n"
+printf "|| FQDN:                           ${DOMAIN} \n"
+printf "|| Public key:                     ${PUBKEY} \n"
+printf "|| Virtualmin user:                ${VMIN_USER} \n"
+printf "|| Virtualmin password:            ${VMIN_PASSWORD} \n"
+printf "|| Virtualmin panel:               https://${DOMAIN}:10000 \n"
+printf "|| MySQL root password:            ${MYSQL_PASSWORD} \n"
+printf "|| Webmin default domain password: ${WEBMIN_PASSWORD} \n"
 

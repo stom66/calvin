@@ -10,6 +10,7 @@ if [ ! -z "$1" ]; then
 	chmod 600 /home/centos/.ssh/authorized_keys
 	echo "$1" >> /home/centos/.ssh/authorized_keys
 	chown -R centos:centos /home/centos/.ssh
+	echo "Calvin | add-public-key | Added pubkey to authorized_keys: ${PUBKEY}" >> ./calvin.log
 else
 	echo "There was a problem adding the public key to authorized_keys" >> ./calvin.log
 fi

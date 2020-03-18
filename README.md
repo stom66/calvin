@@ -21,13 +21,23 @@ the authorised_keys file for the default centos account.
 
 Create your instance and connect via SSH. Use the bash commands provided in the `bootstrap.sh` file to clone the scripts from Git and trigger the installer.
 
-Below is an example useage of the commands from `bootstrap.js`. Note that this is my own public key and you will wish to change it to your own:
+Below is an example useage of the commands from `bootstrap.js`.
+
+
+#### Launch without parameters:
 
 ```bash
 sudo yum install git -y -q
 git clone https://github.com/stom66/calvin/ calvin && cd calvin && chmod +x launch.sh
+sudo ./launch.sh
+```
 
-sudo ./launch.sh -d domain.com -k "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEflkUUVLscb4jtD23/WQe0qMwE0cEVvtoO5A8dUz8l7"
+#### Launch with parameters (be sure to set your own key and passwords):
+
+```bash
+sudo yum install git -y -q
+git clone https://github.com/stom66/calvin/ calvin && cd calvin && chmod +x launch.sh
+sudo ./launch --domain domain.com --virtualmin-user root --virtualmin-password mysecretpassword1 --mysql-password mysecretpassword2 --webmin-password mysecretpassword3 --pubkey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEflkUUVLscb4jtD23/WQe0qMwE0cEVvtoO5A8dUz8l7"
 ```
 
 	

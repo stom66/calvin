@@ -9,6 +9,8 @@ declare CONFIG="/etc/webmin/virtual-server/config"
 declare -i SYS_MEMORY=$(grep MemTotal /proc/meminfo|awk '{print $2}')/1000
 declare MYSQL_MEMORY
 
+declare PREFIX="Calvin | virtualmin-post-install |"
+
 if ((SYS_MEMORY < 512)); then
 	MYSQL_MEMORY="small"
 elif ((SYS_MEMORY < 1024)); then
@@ -24,42 +26,44 @@ fi
 sed -i 's/mysql=.*/mysql=1/' $CONFIG
 
 # Update password for MySQL root user
+# This needs to be done BEFORE you upgrade to MariaDB 10.4+ due to the bug described at https://www.virtualmin.com/node/64694
 if [ ! -z "$1" ]; then
-	virtualmin set-mysql-pass --user root --pass "$1", /etc/webmin/mysql/config
-	echo "Updated root password for MySQL" >> ./calvin.log
+	virtualmin set-mysql-pass --user root --pass "$1"
+	echo "${PREFIX} Updated root password for MySQL" >> ./calvin.log
+	echo "" >> ./calvin.log
 fi
 
 # Set MySQL server memory size
 sed_param=s/mysql_size=.*/mysql_size=${MYSQL_MEMORY}/  
 sed -i "$sed_param" $CONFIG
-echo "MySQL memory setting is ${MYSQL_MEMORY}" >> ./calvin.log
+echo "${PREFIX} MySQL memory setting is ${MYSQL_MEMORY}" >> ./calvin.log
 
 
 # Enable preloading of virtualmin libraries
-sed -i 's/preload_mode=.*/preload_mode=2/' $CONFIG
-echo "Enabled Virtualmin library preloading" >> ./calvin.log
+sed -i 's/preload_mode=.*/preload_mode=1/' $CONFIG
+echo "${PREFIX} Enabled Virtualmin library preloading" >> ./calvin.log
 
 # Enable ClamAV server
 sed -i 's/virus=.*/virus=1/' $CONFIG
-echo "Enabled ClamAV server" >> ./calvin.log
+echo "${PREFIX} Enabled ClamAV server" >> ./calvin.log
 
 # Enable SpamAssassin server
 sed -i 's/spam=.*/spam=1/' $CONFIG
-echo "Enabled SpamAssassin server" >> ./calvin.log
+echo "${PREFIX} Enabled SpamAssassin server" >> ./calvin.log
 
 # Enable quotas
 sed -i 's/quotas=.*/quotas=1/' $CONFIG
-echo "Enabled quotas" >> ./calvin.log
+echo "${PREFIX} Enabled quotas" >> ./calvin.log
 
 # Enable hashed passwords
 sed -i 's/hashpass=.*/hashpass=1/' $CONFIG
-echo "Enabled hashed passwords" >> ./calvin.log
+echo "${PREFIX} Enabled hashed passwords" >> ./calvin.log
 
 # Enable wizard_run flag
 sed -i 's/wizard_run=.*/wizard_run=1/' $CONFIG
-echo "Enabled wizard_run flag" >> ./calvin.log
+echo "${PREFIX} Enabled wizard_run flag" >> ./calvin.log
 
-echo "Virtualmin Post-Install Wizard setup complete" >> ./calvin.log
+echo "${PREFIX} Virtualmin Post-Install Wizard setup complete" >> ./calvin.log
 
 
 
