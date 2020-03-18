@@ -24,9 +24,14 @@ while [ $# -gt 0 ]; do
 			echo "	* Tweak various config options "
 
 			echo "options:"
-			echo "-h, --help                show brief help"
-			echo "-d, --domain domain.tld   specify an FQDN to use as the system hostname"
-			echo "-k, --pubkey PUBKEY      specify an public key to be added to the authorized_keys file"
+			echo "-h, --help                      show brief help"
+			echo "-d, --domain [domain.tld]       specify an FQDN to use as the system hostname"
+			echo "-k, --pubkey [valid pubkey]     specify an public key to be added to the authorized_keys file"
+			echo "-p, --password [mypassword]     specify a password to use for the Virtualmin admin panel"
+			echo "-u, --user [centos]             specify a user to enable the Vitualmin admin panel password for"
+
+			echo "More information is available at https://github.com/stom66/calvin"
+
 			exit 0
 			;;
 		-d|--domain)
@@ -40,7 +45,12 @@ while [ $# -gt 0 ]; do
 			shift
 			;;
 		-p|--password)
-			PUBKEY="$2"
+			VMIN_PASSWORD="$2"
+			shift
+			shift
+			;;
+		-u|--user)
+			VMIN_USER="$2"
 			shift
 			shift
 			;;
@@ -67,7 +77,7 @@ fi
 
 # Check if we're using a pubkey, or request one
 if [ -z "$PUBKEY" ]; then
-	read -e -p "|| Enter an optional public key to install: " -i "" PUBKEY
+	read -e -p "|| Enter an optional public key to install: " -i "${PUBKEY}" PUBKEY
 fi
 
 # Check we have a user to set the password for
@@ -82,15 +92,15 @@ fi
 
 
 # Print the vars we're using
-print_vars() {
-	printf "|| FQDN:          ${DOMAIN} \n"
-	printf "|| Public key:    ${PUBKEY} \n"
-	printf "|| Password:      ${VMIN_PASSWORD} \n"
-	printf "|| \n"
-}
-# printf "$(print_vars)"
 printf "|| All set. Proceeding with install... \n"
+printf "|| FQDN:                  ${DOMAIN} \n"
+printf "|| Public key:            ${PUBKEY} \n"
+printf "|| Virtualmin user:       ${VMIN_USER} \n"
+printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
 
+if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
+	printf "|| Virtualmin login details provided, configuring user account\n"
+fi
 
 # Start install log
 touch ./calvin.log
@@ -130,4 +140,8 @@ echo "Installed NodeJS 12.x:" >> ./calvin.log
 node -v >> calvin.log
 
 # Add virtualmin
-sudo sh 66-virtualmin-installer.sh "${DOMAIN}" "${VMIN_USER}" "${VMIN_PASSWORD}"
+if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
+	sudo sh 66-virtualmin-installer.sh "${DOMAIN}" "${VMIN_USER}" "${VMIN_PASSWORD}"
+else
+	sudo sh 66-virtualmin-installer.sh "${DOMAIN}"
+fi

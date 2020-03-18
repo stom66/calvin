@@ -9,9 +9,9 @@ curl -o ./virtualmin-installer.sh http://software.virtualmin.com/gpl/scripts/ins
 chmod +x ./virtualmin-installer.sh
 ./virtualmin-installer.sh --hostname "$1" --force
 
-if [[ -z $2 && -z $3 ]]; then
+
+
+if [[ ! -z $2 && ! -z $3 ]]; then
 	sudo /usr/libexec/webmin/changepass.pl /etc/webmin "$2" "$3"
 	echo "Enabled Virtualmin admin panel for user $2 with password: $3" >> ./calvin.log
-	printf "Enabled Virtualmin admin panel for user $2 with password: $3" >> ./calvin.log
 fi
-
