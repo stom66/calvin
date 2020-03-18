@@ -49,6 +49,11 @@ while [ $# -gt 0 ]; do
 			shift
 			shift
 			;;
+		-m|--mysql-password)
+			MYSQL_PASSWORD="$2"
+			shift
+			shift
+			;;
 		-u|--user)
 			VMIN_USER="$2"
 			shift
@@ -84,10 +89,17 @@ fi
 if [ -z "$VMIN_USER" ]; then
 	read -e -p "|| Enter a valid user to grant access to the Virtualmin admin panel: " -i "root" VMIN_USER
 fi
+
 # Check we have a password to use for the Virtualmin admin
 if [ -z "$VMIN_PASSWORD" ]; then
 	VMIN_PASSWORD=$(date +%s|sha256sum|base64|head -c 32)
 	read -e -p "|| Enter a password for the Virtualmin admin panel: " -i "${VMIN_PASSWORD}" VMIN_PASSWORD
+fi
+
+# Check we have a password to use set for the MySQL root user
+if [ -z "$MYSQL_PASSWORD" ]; then
+	MYSQL_PASSWORD=$(date +%s|sha256sum|sha256sum|base64|head -c 32)
+	read -e -p "|| Enter a password for the MySQL root user: " -i "${MYSQL_PASSWORD}" MYSQL_PASSWORD
 fi
 
 
@@ -97,6 +109,7 @@ fi
 # printf "|| Public key:            ${PUBKEY} \n"
 # printf "|| Virtualmin user:       ${VMIN_USER} \n"
 # printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
+# printf "|| MySQL root password:   ${MYSQL_PASSWORD} \n"
 
 if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
 	printf "|| Virtualmin login details provided, configuring user account\n"
@@ -146,6 +159,13 @@ else
 	sudo sh 66-virtualmin-installer.sh "${DOMAIN}"
 fi
 
+# Run the Virtualmin Post-Install Wizard
+sudo sh 68-virtualmin-post-install-wizard.sh "${MYSQL_PASSWORD}"
+
+# Upgrade MariaDB to 10.4
+sudo sh 90-maria-upgrade.sh "${MYSQL_PASSWORD}"
+
+
 printf "\n"
 printf "|| CALVIn has completed \n"
 printf "|| ========================================================\n"
@@ -154,4 +174,5 @@ printf "|| Public key:            ${PUBKEY} \n"
 printf "|| Virtualmin user:       ${VMIN_USER} \n"
 printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
 printf "|| Virtualmin panel:      https://${DOMAIN}:10000 \n"
+printf "|| MySQL root password:   ${MYSQL_PASSWORD} \n"
 

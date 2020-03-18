@@ -11,4 +11,4 @@ PACKAGES="${PACKAGES} yum-utils zip"
 yum update -y
 yum install -y $PACKAGES
 
-echo "Installed and updated yum packages (see calvin.yum.log for more detail)" >> ./calvin.log
+echo "Installed and updated yum packages" >> ./calvin.log
