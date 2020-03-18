@@ -92,11 +92,11 @@ fi
 
 
 # Print the vars we're using
-printf "|| All set. Proceeding with install... \n"
-printf "|| FQDN:                  ${DOMAIN} \n"
-printf "|| Public key:            ${PUBKEY} \n"
-printf "|| Virtualmin user:       ${VMIN_USER} \n"
-printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
+# printf "|| All set. Proceeding with install... \n"
+# printf "|| FQDN:                  ${DOMAIN} \n"
+# printf "|| Public key:            ${PUBKEY} \n"
+# printf "|| Virtualmin user:       ${VMIN_USER} \n"
+# printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
 
 if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
 	printf "|| Virtualmin login details provided, configuring user account\n"
@@ -145,3 +145,13 @@ if [[ ! -z $VMIN_USER && ! -z $VMIN_PASSWORD ]]; then
 else
 	sudo sh 66-virtualmin-installer.sh "${DOMAIN}"
 fi
+
+printf "\n"
+printf "|| CALVIn has completed \n"
+printf "|| ========================================================\n"
+printf "|| FQDN:                  ${DOMAIN} \n"
+printf "|| Public key:            ${PUBKEY} \n"
+printf "|| Virtualmin user:       ${VMIN_USER} \n"
+printf "|| Virtualmin password:   ${VMIN_PASSWORD} \n"
+printf "|| Virtualmin panel:      https://${DOMAIN}:10000 \n"
+
