@@ -7,8 +7,7 @@
 
 curl -o ./virtualmin-installer.sh http://software.virtualmin.com/gpl/scripts/install.sh
 chmod +x ./virtualmin-installer.sh
-./virtualmin-installer.sh --hostname "$1" --force
-
+./virtualmin-installer.sh --hostname "$1" --force >> ./calvin.log
 
 
 if [[ ! -z $2 && ! -z $3 ]]; then

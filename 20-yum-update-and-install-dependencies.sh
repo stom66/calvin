@@ -8,7 +8,7 @@ PACKAGES="{$PACKAGES} lm_sensors make ncdu perl perl-Authen-PAM"
 PACKAGES="{$PACKAGES} perl-CPAN ruby-devel rubygems scl-utils util-linux"
 PACKAGES="{$PACKAGES} yum-utils zip"
 
-yum update -y
-yum install -y $PACKAGES 
+yum update -y >> ./calvin.yum.log
+yum install -y $PACKAGES >> ./calvin.yum.log
 
-echo "Installed and updated yum packages" >> ./setup-script.log
+echo "Installed and updated yum packages (see calvin.yum.log for more detail)" >> ./calvin.log
