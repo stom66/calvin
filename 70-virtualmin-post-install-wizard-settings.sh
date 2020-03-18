@@ -30,7 +30,6 @@ sed -i 's/mysql=.*/mysql=1/' $CONFIG
 if [ ! -z "$1" ]; then
 	virtualmin set-mysql-pass --user root --pass "$1"
 	echo "${PREFIX} Updated root password for MySQL" >> ./calvin.log
-	echo "" >> ./calvin.log
 fi
 
 # Set MySQL server memory size

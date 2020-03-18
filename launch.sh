@@ -108,7 +108,7 @@ fi
 
 # Start install log
 touch ./calvin.log
-TIME_START=$(date +"%T")
+TIME_START=$(date -u)
 echo "Install started at: $TIME_START" >> ./calvin.log
 echo "   Using FQDN:      $DOMAIN" >> ./calvin.log
 echo "   Using pubkey:    $PUBKEY" >> ./calvin.log
@@ -162,7 +162,7 @@ sudo sh 80-create-default-domain.sh "${DOMAIN}" "${WEBMIN_PASSWORD}"
 sudo sh 85-php-ini-tweaks.sh
 
 # Upgrade MariaDB to 10.4
-sudo sh 90-maria-upgrade.sh "${MYSQL_PASSWORD}"
+sudo sh 90-maria-upgrade.sh
 
 
 printf "\n"

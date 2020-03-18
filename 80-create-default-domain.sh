@@ -13,9 +13,12 @@ virtualmin create-domain --domain "$1" --pass "$2" --default-features
 declare HOME_DIR=$(sudo virtualmin list-domains | grep "${DOMAIN}" | awk -F" " '{print $2}')
 
 if [ ! -z "$HOME_DIR" ]; then
+	# Copy default server status page
 	cp ./resources/index.html "/home/${HOME_DIR}/public_html/index.html"
 	echo "${PREFIX} Created /home/${HOME_DIR}/public_html/index.html" >> ./calvin.log
-end
+	
+	sed -i -e "s/example\.com/${DOMAIN}/g" "/home/${HOME_DIR}/public_html/index.html"
+fi
 
 # Done
 echo "${PREFIX} completed" >> ./calvin.log
