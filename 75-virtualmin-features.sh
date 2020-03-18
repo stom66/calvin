@@ -4,6 +4,7 @@
 
 # Logging
 declare PREFIX="Calvin | virtualmin-features |"
+echo "Configuring Virtualmin features (this can take a while)..."
 
 # Enable SSL by default
 virtualmin set-global-feature --default-on ssl

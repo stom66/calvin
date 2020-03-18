@@ -5,6 +5,8 @@ declare -l DOMAIN
 declare PUBKEY
 declare VMIN_USER
 declare VMIN_PASSWORD
+declare MYSQL_PASSWORD
+declare WEBMIN_PASSWORD
 
 # Parse provided parameters
 while [ $# -gt 0 ]; do
@@ -124,18 +126,17 @@ sudo sh 10-hostname-setup.sh "${DOMAIN}"
 # Trigger yum updates and dependecy installs
 sudo sh 20-yum-update-and-install-dependencies.sh
 
+# Add aws-cli
+sudo sh 22-aws-cli.sh
+
 # Add SysInfo MOTD
 sudo sh 40-add-motd-system-info.sh
 
 # Add Remi PHP 7.4
 sudo sh 50-php-add-remi.sh
-echo "Installed Remi PHP 7.4:" >> ./calvin.log
-php -v >> ./calvin.log
 
 # Add Node 12.x
 sudo sh 55-node-js-12.sh
-echo "Installed NodeJS 12.x:" >> ./calvin.log
-node -v >> calvin.log
 
 # Add NPM Packages
 sudo sh 60-npm-install-less-sass.sh
@@ -149,17 +150,16 @@ else
 fi
 
 # Run the Virtualmin Post-Install Wizard
-sudo sh 70-virtualmin-post-install-wizard.sh "${MYSQL_PASSWORD}"
+sudo sh 70-virtualmin-post-install-wizard-settings.sh "${MYSQL_PASSWORD}"
 
 # Run the Virtualmin Post-Install Wizard
 sudo sh 75-virtualmin-features.sh
 
 # Create a virtual site for the default domain
-sudo sh 85-create-default-domain.sh "${DOMAIN}" "${WEBMIN_PASSWORD}"
+sudo sh 80-create-default-domain.sh "${DOMAIN}" "${WEBMIN_PASSWORD}"
 
 # Upgrade MariaDB to 10.4
-sudo sh 80-php-ini-tweaks.sh
-
+sudo sh 85-php-ini-tweaks.sh
 
 # Upgrade MariaDB to 10.4
 sudo sh 90-maria-upgrade.sh "${MYSQL_PASSWORD}"
@@ -170,9 +170,9 @@ printf "|| CALVIn has completed \n"
 printf "|| ========================================================\n"
 printf "|| FQDN:                           ${DOMAIN} \n"
 printf "|| Public key:                     ${PUBKEY} \n"
+printf "|| MySQL root password:            ${MYSQL_PASSWORD} \n"
+printf "|| Webmin default domain password: ${WEBMIN_PASSWORD} \n"
 printf "|| Virtualmin user:                ${VMIN_USER} \n"
 printf "|| Virtualmin password:            ${VMIN_PASSWORD} \n"
 printf "|| Virtualmin panel:               https://${DOMAIN}:10000 \n"
-printf "|| MySQL root password:            ${MYSQL_PASSWORD} \n"
-printf "|| Webmin default domain password: ${WEBMIN_PASSWORD} \n"
 

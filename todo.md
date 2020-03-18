@@ -11,5 +11,5 @@ Various things to do:
 * Enable DKIM, SPF and DMARC
 * Enable FirewallD and open suitable ports
 * Enable and configure backups
-
+* Import simple status page for default virtual server
 
