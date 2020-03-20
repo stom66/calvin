@@ -59,6 +59,7 @@ sed -i 's/hashpass=.*/hashpass=1/' $CONFIG
 echo "${PREFIX} Enabled hashed passwords" >> ./calvin.log
 
 # Enable wizard_run flag
+echo "wizard_run=1" >> $CONFIG
 sed -i 's/wizard_run=.*/wizard_run=1/' $CONFIG
 echo "${PREFIX} Enabled wizard_run flag" >> ./calvin.log
 

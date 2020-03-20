@@ -1,5 +1,7 @@
 # CALVIn
 
+# Note: under development. Here be dragons.
+
 ## CentOS Amazon Lightsail Virtualmin Installer
 
 This script is designed to be run on a fresh installation of CentOS 7 running on the AWS Lightsail platform. It has been tested on the 512MB and above platforms.
