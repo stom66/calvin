@@ -9,4 +9,4 @@ echo "prepend domain-name-servers 127.0.0.1;" | sudo tee -a /etc/dhcp/dhclient.c
 echo "preserve_hostname: true" | sudo tee -a /etc/cloud/cloud.cfg
 systemctl restart network
 
-echo "${PREFIX} Configured system to use hostname: ${DOMAIN}" >> ./calvin.log
+echo "${PREFIX} Configured system to use hostname: ${1}" >> ./calvin.log

@@ -25,6 +25,8 @@ while [ $# -gt 0 ]; do
 			echo "  -p, --virtualmin-password [mypassword]  specify a password to use for the Virtualmin admin panel"
 			echo "  -m, --mysql-password [mypassword]       specify a password to use for the MySQL root user"
 			echo "  -w, --webmin-password [mypassword]      specify a password to use for the default domain user"
+			echo "  -a, --aws-access-key-id [key id]        specify an AWS access key id to configure the default aws-cli profile"
+			echo "  -s, --aws-secret-access-key [key]       specify a AWS secret access key for use with the access key id"
 			exit 0
 			;;
 		-d|--domain)
@@ -57,12 +59,21 @@ while [ $# -gt 0 ]; do
 			shift
 			shift
 			;;
+		-a|--aws-access-key-id)
+			AWS_ACCESS_KEY_ID="$2"
+			shift
+			shift
+			;;
+		-s|--aws-secret-access-key)
+			AWS_SECRET_ACCESS_KEY="$2"
+			shift
+			shift
+			;;
 		*)
 			break
 			;;
 	esac
 done
-
 
 printf "\n|| Starting CALVIn. Checking config \n"
 printf "|| ================================ \n"
@@ -106,6 +117,18 @@ if [ -z "$WEBMIN_PASSWORD" ]; then
 	read -e -p "|| Enter a password for the default domain Webmin user: " -i "${WEBMIN_PASSWORD}" WEBMIN_PASSWORD
 fi
 
+
+# Check if we have an AWS access key ID
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+	read -e -p "|| Enter an (optional) AWS access key ID: " -i "" AWS_ACCESS_KEY_ID
+fi
+
+# Check if we have an AWS access key ID
+if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+	read -e -p "|| Enter an (optional) AWS secret access key: " -i "" AWS_SECRET_ACCESS_KEY
+fi
+
+
 # Start install log
 touch ./calvin.log
 TIME_START=$(date -u)
@@ -120,6 +143,9 @@ else
 	sudo sh 05-add-public-key.sh -k "${PUBKEY}"
 fi
 
+# Harden SSH
+sudo 06-harden-ssh.sh
+
 # Configure hostname and network
 sudo sh 10-hostname-setup.sh "${DOMAIN}"
 
@@ -127,7 +153,7 @@ sudo sh 10-hostname-setup.sh "${DOMAIN}"
 sudo sh 20-yum-update-and-install-dependencies.sh
 
 # Add aws-cli
-sudo sh 22-aws-cli.sh
+sudo sh 22-aws-cli.sh "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}"
 
 # Add SysInfo MOTD
 sudo sh 40-add-motd-system-info.sh
@@ -175,4 +201,5 @@ printf "|| Webmin default domain password: ${WEBMIN_PASSWORD} \n"
 printf "|| Virtualmin user:                ${VMIN_USER} \n"
 printf "|| Virtualmin password:            ${VMIN_PASSWORD} \n"
 printf "|| Virtualmin panel:               https://${DOMAIN}:10000 \n"
+
 
