@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check we have root perms
+if [[ "${UID}" -ne 0 ]]; then
+    echo " You need to run this script as root"
+    exit 1
+fi
+
 # Setup vars
 declare -l DOMAIN
 declare PUBKEY
@@ -7,6 +13,8 @@ declare VMIN_USER
 declare VMIN_PASSWORD
 declare MYSQL_PASSWORD
 declare WEBMIN_PASSWORD
+declare AWS_ACCESS_KEY
+declare AWS_SECRET_KEY
 
 # Parse provided parameters
 while [ $# -gt 0 ]; do
@@ -25,8 +33,8 @@ while [ $# -gt 0 ]; do
 			echo "  -p, --virtualmin-password [mypassword]  specify a password to use for the Virtualmin admin panel"
 			echo "  -m, --mysql-password [mypassword]       specify a password to use for the MySQL root user"
 			echo "  -w, --webmin-password [mypassword]      specify a password to use for the default domain user"
-			echo "  -a, --aws-access-key-id [key id]        specify an AWS access key id to configure the default aws-cli profile"
-			echo "  -s, --aws-secret-access-key [key]       specify a AWS secret access key for use with the access key id"
+			echo "  -a, --aws-access-key [key]              optional: aws access key to use for aws-cli"
+			echo "  -s, --aws-secret-key [key]              optional: aws secret key to use for aws-cli"
 			exit 0
 			;;
 		-d|--domain)
@@ -59,13 +67,13 @@ while [ $# -gt 0 ]; do
 			shift
 			shift
 			;;
-		-a|--aws-access-key-id)
-			AWS_ACCESS_KEY_ID="$2"
+		-a|--aws-access-key)
+			AWS_ACCESS_KEY="$2"
 			shift
 			shift
 			;;
-		-s|--aws-secret-access-key)
-			AWS_SECRET_ACCESS_KEY="$2"
+		-s|--aws-secret-key)
+			AWS_SECRET_KEY="$2"
 			shift
 			shift
 			;;
@@ -74,6 +82,7 @@ while [ $# -gt 0 ]; do
 			;;
 	esac
 done
+
 
 printf "\n|| Starting CALVIn. Checking config \n"
 printf "|| ================================ \n"
@@ -105,36 +114,32 @@ if [ -z "$VMIN_PASSWORD" ]; then
 	read -e -p "|| Enter a password for the Virtualmin admin panel: " -i "${VMIN_PASSWORD}" VMIN_PASSWORD
 fi
 
-# Check we have a password to set for the MySQL root user
-if [ -z "$MYSQL_PASSWORD" ]; then
-	MYSQL_PASSWORD=$(date +%s|sha256sum|sha256sum|base64|head -c 32)
-	read -e -p "|| Enter a password for the MySQL root user: " -i "${MYSQL_PASSWORD}" MYSQL_PASSWORD
-fi
-
 # Check we have a password to use for the default domain webmin admin
 if [ -z "$WEBMIN_PASSWORD" ]; then
 	WEBMIN_PASSWORD=$(date +%s|sha256sum|sha256sum|base64|head -c 32)
 	read -e -p "|| Enter a password for the default domain Webmin user: " -i "${WEBMIN_PASSWORD}" WEBMIN_PASSWORD
 fi
 
-
-# Check if we have an AWS access key ID
-if [ -z "$AWS_ACCESS_KEY_ID" ]; then
-	read -e -p "|| Enter an (optional) AWS access key ID: " -i "" AWS_ACCESS_KEY_ID
+# Check we have a password to set for the MySQL root user
+if [ -z "$MYSQL_PASSWORD" ]; then
+	MYSQL_PASSWORD=$(date +%s|sha256sum|sha256sum|base64|head -c 32)
+	read -e -p "|| Enter a password for the MySQL root user: " -i "${MYSQL_PASSWORD}" MYSQL_PASSWORD
 fi
 
-# Check if we have an AWS access key ID
-if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
-	read -e -p "|| Enter an (optional) AWS secret access key: " -i "" AWS_SECRET_ACCESS_KEY
+# AWS Credentials
+# Check for an AWS access key
+if [ -z "$AWS_ACCESS_KEY" ]; then
+	read -e -p "|| Enter an (optional) aws-cli ACCESS KEY: " -i "${AWS_ACCESS_KEY}" AWS_ACCESS_KEY
 fi
 
+# Check for an AWS secret key
+if [ -z "$AWS_SECRET_KEY" ]; then
+	read -e -p "|| Enter an (optional) aws-cli SECRET KEY: " -i "${AWS_SECRET_KEY}" AWS_SECRET_KEY
+fi
 
-# Start install log
-touch ./calvin.log
-TIME_START=$(date -u)
-echo "Install started at: $TIME_START" >> ./calvin.log
-echo "   Using FQDN:      $DOMAIN" >> ./calvin.log
-echo "   Using pubkey:    $PUBKEY" >> ./calvin.log
+#
+# Start script main
+#
 
 # Add pubkey
 if [ -z "$PUBKEY" ]; then
@@ -143,9 +148,6 @@ else
 	sudo sh 05-add-public-key.sh -k "${PUBKEY}"
 fi
 
-# Harden SSH
-sudo 06-harden-ssh.sh
-
 # Configure hostname and network
 sudo sh 10-hostname-setup.sh "${DOMAIN}"
 
@@ -153,7 +155,7 @@ sudo sh 10-hostname-setup.sh "${DOMAIN}"
 sudo sh 20-yum-update-and-install-dependencies.sh
 
 # Add aws-cli
-sudo sh 22-aws-cli.sh "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}"
+sudo sh 22-aws-cli.sh "${AWS_ACCESS_KEY}" "${AWS_SECRET_KEY}"
 
 # Add SysInfo MOTD
 sudo sh 40-add-motd-system-info.sh
@@ -201,5 +203,4 @@ printf "|| Webmin default domain password: ${WEBMIN_PASSWORD} \n"
 printf "|| Virtualmin user:                ${VMIN_USER} \n"
 printf "|| Virtualmin password:            ${VMIN_PASSWORD} \n"
 printf "|| Virtualmin panel:               https://${DOMAIN}:10000 \n"
-
 

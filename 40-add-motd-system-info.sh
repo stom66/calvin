@@ -5,8 +5,8 @@
 # Logging
 declare PREFIX="Calvin | add-motd |"
 
-sed -i '/^#.*PrintMotd/s/^#//' /etc/ssh/sshd_config
-sed -i '/^PrintMotd/s/yes/no/' /etc/ssh/sshd_config
+sed -i 's/#\?\(PrintMotd\s*\).*$/\1 no/' /etc/ssh/sshd_config
+
 echo "${PREFIX} Updated sshd_config" >> ./calvin.log
 
 systemctl restart sshd

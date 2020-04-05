@@ -10,7 +10,7 @@ declare DOMAIN="$1"
 
 virtualmin create-domain --domain "$1" --pass "$2" --default-features
 
-declare HOME_DIR=$(sudo virtualmin list-domains | grep "${DOMAIN}" | awk -F" " '{print $2}')
+declare HOME_DIR=$(virtualmin list-domains | grep "${DOMAIN}" | awk -F" " '{print $2}')
 
 if [ ! -z "$HOME_DIR" ]; then
 	# Copy default server status page

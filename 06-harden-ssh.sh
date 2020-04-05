@@ -3,17 +3,12 @@
 # Configures SSHD to force keypair logins, disables root and password logins
 declare PREFIX="Calvin | harden-ssh |"
 
-sed -i '/^#.*ChallengeResponseAuthentication/s/^#//' /etc/ssh/sshd_config
-sed -i '/^ChallengeResponseAuthentication/s/yes/no/' /etc/ssh/sshd_config
 
-sed -i '/^#.*PasswordAuthentication/s/^#//' /etc/ssh/sshd_config
-sed -i '/^PasswordAuthentication/s/yes/no/' /etc/ssh/sshd_config
-
-sed -i '/^#.*PermitRootLogin/s/^#//' /etc/ssh/sshd_config
-sed -i '/^PermitRootLogin/s/yes/no/' /etc/ssh/sshd_config
-
-sed -i '/^#.*UsePAM/s/^#//' /etc/ssh/sshd_config
-sed -i '/^UsePAM/s/no/yes/' /etc/ssh/sshd_config
+#sed -i 's/#\?\(Port\s*\).*$/\1 2231/' /etc/ssh/sshd_config
+sed -i 's/#\?\(ChallengeResponseAuthentication\s*\).*$/\1 no/' /etc/ssh/sshd_config
+sed -i 's/#\?\(PasswordAuthentication\s*\).*$/\1 no/' /etc/ssh/sshd_config
+sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1 no/' /etc/ssh/sshd_config
+sed -i 's/#\?\(UsePAM\s*\).*$/\1 yes/' /etc/ssh/sshd_config
 
 echo "${PREFIX} Disabled ssh password auth and root logins" >> ./calvin.log
 
