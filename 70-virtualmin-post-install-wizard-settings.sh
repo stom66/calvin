@@ -61,7 +61,7 @@ echo "${PREFIX} Enabled hashed passwords" >> ./calvin.log
 # Enable wizard_run flag
 echo "wizard_run=1" >> $CONFIG
 sed -i 's/wizard_run=.*/wizard_run=1/' $CONFIG
-echo "${PREFIX} Enabled wizard_run flag" >> ./calvin.log
+echo "${PREFIX} Manually added wizard_run flag" >> ./calvin.log
 
 echo "${PREFIX} Virtualmin Post-Install Wizard setup complete" >> ./calvin.log
 

@@ -20,3 +20,6 @@ sudo tee -a /etc/httpd/conf/httpd.conf > /dev/null <<EOT
 EOT
 
 echo "${PREFIX} Added GNU Terry Pratchett to httpd.conf" >> ./calvin.log
+
+# Restart apache
+systemctl restart httpd

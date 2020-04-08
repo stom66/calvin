@@ -17,6 +17,3 @@ echo "${PREFIX} AWStats disabled" >> ./calvin.log
 # Disable DAV by default
 virtualmin set-global-feature --default-off virtualmin-dav 
 echo "${PREFIX} DAV disabled" >> ./calvin.log
-
-# Done
-echo "${PREFIX} completed" >> ./calvin.log
