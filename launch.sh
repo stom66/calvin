@@ -192,9 +192,6 @@ sudo sh 85-php-ini-tweaks.sh
 # Upgrade MariaDB to 10.4
 sudo sh 90-maria-upgrade.sh
 
-# Harden postfix
-sudo sh 100-harden-postfix.sh
-
 
 printf "\n"
 printf "|| CALVIn has completed \n"

@@ -15,6 +15,6 @@ echo "${PREFIX} Installed perl packages" >> ./calvin.log
 
 # Enable Google Authenticator
 echo "twofactor_provider=totp" | sudo tee -a /etc/webmin/miniserv.conf
-echo "${PREFIX} Enabled Gooel Authenticator 2FA for Webmin. You will need to enroll a user manually." >> ./calvin.log
+echo "${PREFIX} Enabled Google Authenticator 2FA for Webmin. You will need to enroll a user manually." >> ./calvin.log
 
 
