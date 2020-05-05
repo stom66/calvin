@@ -47,7 +47,7 @@ if [[ ! -z "$1" && ! -z "$2" ]]; then
     fi
 
     # Open Ports
-    PORTS=(22 25 80 443 465 587 995 10000)
+    PORTS=(22 25 80 443 465 587 993 10000)
     echo "${PREFIX} Opening ports ${PORTS[@]}" >> ./calvin.log
     PROTOCOL="tcp"
 

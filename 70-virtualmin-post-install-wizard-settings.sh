@@ -63,6 +63,10 @@ echo "wizard_run=1" >> $CONFIG
 sed -i 's/wizard_run=.*/wizard_run=1/' $CONFIG
 echo "${PREFIX} Manually added wizard_run flag" >> ./calvin.log
 
+# Redirect non-SSL calls to the admin panel to SSL
+sed -i 's/ssl_redirect=.*/ssl_redirect=1/' /etc/webmin/miniserv.conf
+echo "${PREFIX} Enabled non-SSL to SSL redirect for Webmin panel" >> ./calvin.log
+
 echo "${PREFIX} Virtualmin Post-Install Wizard setup complete" >> ./calvin.log
 
 
