@@ -14,6 +14,8 @@ postconf -e 'smtpd_helo_restrictions = permit_mynetworks permit_sasl_authenticat
 # Encourage the use of TLS
 postconf -e 'smtp_tls_security_level = may'
 postconf -e 'smtp_tls_note_starttls_offer = yes'
+postconf -e 'smtp_use_tls = yes'
+postconf -e 'smtpd_use_tls = yes'
 postconf -e 'smtpd_tls_security_level = may'
 postconf -e 'smtpd_sasl_auth_enable = yes'
 
