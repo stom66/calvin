@@ -51,8 +51,31 @@ sed -i 's/spam=.*/spam=1/' $CONFIG
 echo "${PREFIX} Enabled SpamAssassin server" >> ./calvin.log
 
 # Enable quotas
-sed -i 's/quotas=.*/quotas=1/' $CONFIG
-echo "${PREFIX} Enabled quotas" >> ./calvin.log
+
+# This is work in progress. Quotas need to be enabled in grub, which requires a bit of regex-fu beyond me. 
+# I need to prepend `uquota,gquota,` to the rootflags parameter if it exists in GRUB_CMDLINE_LINUX, otherwise add it
+
+# sudo grep -q "rootflags" /etc/default/grub && sudo sed -i "s/rootflags=/rootflags=uquota,gquota,/" /etc/default/grub || echo "rootflags not found"
+
+# loosely converted from this snippet of https://github.com/virtualmin/virtualmin-gpl/blob/master/wizard-lib.pl
+
+#	my %grub;
+#	&read_env_file($grubfile, \%grub) ||
+#		return &text('wizard_egrubfile', "<tt>$grubfile</tt>");
+#	my $v = $grub{'GRUB_CMDLINE_LINUX'};
+#	$v || return &text('wizard_egrubline', "<tt>GRUB_CMDLINE_LINUX</tt>");
+#	if ($v =~ /rootflags=(\S+)/) {
+#		$v =~ s/rootflags=(\S+)/rootflags=$1,uquota,gquota/;
+#		}
+#	else {
+#		$v .= " rootflags=uquota,gquota";
+#		}
+#
+
+# Update the config file to let it know quotas are enabled
+#sed -i 's/quotas=.*/quotas=1/' $CONFIG
+
+#echo "${PREFIX} Enabled quotas" >> ./calvin.log 
 
 # Enable hashed passwords
 sed -i 's/hashpass=.*/hashpass=1/' $CONFIG
@@ -66,6 +89,8 @@ echo "${PREFIX} Manually added wizard_run flag" >> ./calvin.log
 # Redirect non-SSL calls to the admin panel to SSL
 sed -i 's/ssl_redirect=.*/ssl_redirect=1/' /etc/webmin/miniserv.conf
 echo "${PREFIX} Enabled non-SSL to SSL redirect for Webmin panel" >> ./calvin.log
+
+# Check config?
 
 echo "${PREFIX} Virtualmin Post-Install Wizard setup complete" >> ./calvin.log
 
