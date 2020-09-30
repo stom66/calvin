@@ -60,10 +60,13 @@ Some thing to do after logging in:
 
 * Reboot the system!
 * Visit the defualt domain (if used) and check the status page is working
-* Enable 2FA for the Virtualmin Panel by running `enable-2fa.sh` and then ebaling it under *Webmin -> Webmin Users -> Two-Factor Authentication*
-* Enable bandidth monitoring under *Virtualmin -> System Settings -> Bandwidth Monitoring*. You'll also need to setup a reasonable quota as the default is unlimited
-* Enable mail client auto-configuration under Virtualmin -> Email Settings -> Mail Client Configuration
-* Enable DKIM under Virtualmin -> Email Settings -> DomainKeys Identified Mail
+* Enable 2FA for the Virtualmin Panel by running `enable-2fa.sh` and then enabling it under *Webmin -> Webmin Users -> Two-Factor Authentication*
 * Set a nice login background under Webmin -> Webmin Configuration -> Webmin Themes -> Theme Backgrounds
+* Enable bandidth monitoring under *Virtualmin -> System Settings -> Bandwidth Monitoring*. You'll also need to setup a reasonable quota as the default is unlimited
+* Enable DKIM under Virtualmin -> Email Settings -> DomainKeys Identified Mail
+* Enable mail client auto-configuration under Virtualmin -> Email Settings -> Mail Client Configuration
+* Check the mail client auto-configuration autodiscover and autocondif urls display the right settings:
+  * https://domain.com/autodiscover/autodiscover.xml?emailaddress=user@domain.com
+  * https://domain.com/cgi-bin/autoconfig.cgi?emailaddress=user@domain.com
 
 	
